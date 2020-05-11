@@ -1,10 +1,10 @@
-FROM golang:1.14.2-buster
+FROM golang:1.14.2-buster AS builder
 
-RUN pwd
-COPY main.go go.sum /go/
-COPY rebalancer /go/rebalancer/
-RUN pwd
-RUN find .
-RUN go get .
-RUN go build .
+WORKDIR /go/src/ecs-rebalancer
+COPY . .
+RUN make
 
+FROM alpine:latest
+WORKDIR /root/
+COPY --from=builder /go/src/ecs-rebalancer/ecs-rebalancer .
+CMD ["./ecs-rebalancer"]
